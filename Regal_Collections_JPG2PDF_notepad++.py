@@ -44,7 +44,8 @@ known_locations = {
     "#1526": "Regal_Cinemas_Wilder",
 }
 output_reduction_factor = 3
-input_folder = "./Regal_photos/"
+#input_folder = "./Regal_photos/"
+input_folder = "G:/Documents/"
 output_folder = "G:/Documents"
 inputfile_extension = ".jpg"
 # sample output directory
