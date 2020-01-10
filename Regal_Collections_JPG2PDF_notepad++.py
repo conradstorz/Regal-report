@@ -49,7 +49,7 @@ input_folder = "G:/Documents/"
 output_folder = "G:/Documents"
 inputfile_extension = ".jpg"
 # sample output directory
-# "G:\Documents\2019_Regal_Photobooths_Collections\Regal Collections 20190918"
+# "G:\Documents\Regal_Collections_20190918"
 
 
 @logger.catch
@@ -187,7 +187,7 @@ def determine_output_filename(image, datestr):
         logger.info("Data extracted: " + location_match)
         if not os.path.exists(output_folder):  # check and create output folder
             os.makedirs(output_folder)  # TODO trap IOerrors
-        dest_folder = output_folder + "/" + "Regal Collections " + datestr
+        dest_folder = output_folder + "/" + "Regal_Collections_" + datestr
         if not os.path.exists(dest_folder):  # check and create date folder
             os.makedirs(dest_folder)  # TODO trap IOerrors
         newfilename = "".join([dest_folder, "/", datestr, "_", location_match, ".pdf"])
@@ -209,9 +209,9 @@ def Main():
         level="INFO",
     )  # set a handler
     logger.add(
-        "file.log", format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}"
+        "./file.log", format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}"
     )  # this establishes a file log that gets appended each time the program runs
-    logger.add("file_{time}.log")  # create a new log file for each run of the program
+    logger.add("./LOGS/file_{time}.log")  # create a new log file for each run of the program
     logger.info("Program Start.")  # log the start of the program
     if gather_all_JPEG_filenames_and_process():
         logger.info('All files processed.')
