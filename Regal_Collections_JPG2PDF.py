@@ -23,10 +23,10 @@ from time import sleep
 import PIL.Image  # PIL is python 2.7 only (installed Pillow_as_PIL instead)
 from loguru import logger #TODO fix location of LOG files into a sub-folder
 from pytesseract import image_to_string as pyt_img2str
-from pytesseract import tesseract_cmd as pyt_cmd
+import pytesseract
 
-pyt_cmd = (
-    r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+pytesseract.tesseract_cmd = (
+    r"C:/Program Files/Tesseract-OCR/tesseract.exe"
 )  # Windows put files in a location off-path so this is a workaround
 
 import tkinter as tk
@@ -50,7 +50,7 @@ input_folder = "G:/Documents/"
 output_folder = "G:/Documents"
 inputfile_extension = ".jpg"
 # sample output directory
-# "G:\Documents\Regal_Collections_20190918"
+# "G:/Documents/Regal_Collections_20190918"
 
 
 @logger.catch
@@ -68,10 +68,10 @@ def move_file(old_FQFN, new_FQFN):
 def retieve_image(fname, color=True):
     """ Read a JPEG image from storage and optionally rotate and remove color from image
     """
-    filename = fname
-    name = filename.split(".")[0]
+    #filename = fname
+    #name = filename.split(".")[0]
     # TODO trap possible file error IOError
-    im = PIL.Image.open(filename)
+    im = PIL.Image.open(fname)
     logger.debug(str(im.format) + " " + str(im.mode) + " " + str(im.size))
 
     if color == False:
@@ -116,10 +116,11 @@ def gather_all_JPEG_filenames_and_process():
         datestring = fname[4:12]  # sample filename string "IMG_20190724_102855.jpeg"
         return datestring
 
+    logger.info(f'\nScanning input folder: {input_folder}')
     files = [f for f in os.listdir(input_folder) if f.endswith(inputfile_extension)]
     num_of_files = str(len(files))
     if num_of_files == "0":
-        logger.info('No files found in directory to process.')
+        logger.info('\nNo files found in directory to process.')
         return False
     logger.debug(files)
 
