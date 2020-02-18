@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """ Regal_Collections_JPEG2PDF
-    Script to munge JPEGs into small Black&White PDFs
-    PDFs named based on location name recovered from OCR
-    and Date of Photo recovered from filename of JPEG
+    Script to munge JPEG photos into small Black&White PDFs
+    PDFs named based on location name recovered from Optical Character Recognition
+    combined with Date of Photo recovered from filename of JPEG
 """
 
 __author__ = "Conrad Storz"
@@ -22,9 +22,10 @@ from time import sleep
 
 import PIL.Image  # PIL is python 2.7 only (installed Pillow_as_PIL instead)
 from loguru import logger #TODO fix location of LOG files into a sub-folder
-from pytesseract import *
+from pytesseract import image_to_string as pyt_img2str
+from pytesseract import tesseract_cmd as pyt_cmd
 
-pytesseract.tesseract_cmd = (
+pyt_cmd = (
     r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 )  # Windows put files in a location off-path so this is a workaround
 
@@ -167,7 +168,7 @@ def determine_output_filename(image, datestr):
         logger.info("Rotating image...")
         img = image.transpose(PIL.Image.ROTATE_270)
         logger.info("Applying Optical Character Recognition...")
-        txt = image_to_string(img)
+        txt = pyt_img2str(img)
         logger.debug("TEXT FOUND:\n" + txt)
         return (img, txt)
 
@@ -223,88 +224,3 @@ def Main():
 
 if __name__ == "__main__":
     Main()
-
-
-@logger.catch
-def ask_user_to_decide(img):
-    """ the OCR could not determine what location this image represents.
-    display the image and ask the user to decide.
-    this function is not functional. It is never meant to be used in this condition.
-    """
-    location_name = (
-        "INDETERMINATE"
-    )  # use the name "indeterminate" if user fails to respond
-    img.show()  # display image
-
-    # list known locations
-    def use_tkinter_to_ask_user():  # DO NOT USE
-        answer = "IDONTKNOW"
-
-        def display_1():
-            # .get is used to obtain the current value
-            # of entry_1 widget (This is always a string)
-            print(entry_1.get())
-
-        def display_2():
-            num = entry_2.get()
-            # Try convert a str to int
-            # If unable eg. int('hello') or int('5.5')
-            # then show an error.
-            try:
-                num = int(num)
-            # ValueError is the type of error expected from this conversion
-            except ValueError:
-                # Display Error Window (Title, Prompt)
-                showerror("Non-Int Error", "Please enter an integer")
-            else:
-                print(num)
-
-        def display_3():
-            # Ask String Window (Title, Prompt)
-            # Returned value is a string
-            ans = askstring("Enter String", "Please enter any set of characters")
-            # If the user clicks cancel, None is returned
-            # .strip is used to ensure the user doesn't
-            # enter only spaces ' '
-            if ans is not None and ans.strip():
-                print(ans)
-            elif ans is not None:
-                showerror("Invalid String", "You must enter something")
-
-        def display_4():
-            # Ask Integer Window (Title, Prompt)
-            # Returned value is an int
-            ans = askinteger("Enter Integer", "Please enter an integer")
-            # If the user clicks cancel, None is returned
-            if ans is not None:
-                print(ans)
-
-        # Create the main window
-        root = tk.Tk()
-
-        # Create the widgets
-        entry_1 = tk.Entry(root)
-        btn_1 = tk.Button(root, text="Display Text", command=display_1)
-
-        entry_2 = tk.Entry(root)
-        btn_2 = tk.Button(root, text="Display Integer", command=display_2)
-
-        btn_3 = tk.Button(root, text="Enter String", command=display_3)
-        btn_4 = tk.Button(root, text="Enter Integer", command=display_4)
-
-        # Grid is used to add the widgets to root
-        # Alternatives are Pack and Place
-        entry_1.grid(row=0, column=0)
-        btn_1.grid(row=1, column=0)
-        entry_2.grid(row=0, column=1)
-        btn_2.grid(row=1, column=1)
-
-        btn_3.grid(row=2, column=0)
-        btn_4.grid(row=2, column=1)
-
-        root.mainloop()
-        return answer
-
-    sleep(5)  # ask user to decide but only wait for max 3 minutes
-
-    return location_name
