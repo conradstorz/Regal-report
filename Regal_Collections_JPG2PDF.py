@@ -200,7 +200,7 @@ def determine_output_filename(image, datestr):
 
 
 @logger.catch
-def Main():
+def DefineLoggers():
     logger.configure(
         handlers=[{"sink": os.sys.stderr, "level": "INFO"}]
     )  # this method automatically suppresses the default handler to modify the message level
@@ -214,6 +214,12 @@ def Main():
         "./file.log", format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}"
     )  # this establishes a file log that gets appended each time the program runs
     logger.add("./LOGS/file_{time}.log")  # create a new log file for each run of the program
+    return
+
+
+@logger.catch
+def Main():
+    DefineLoggers()
     logger.info("Program Start.")  # log the start of the program
     if gather_all_JPEG_filenames_and_process():
         logger.info('All files processed.')
