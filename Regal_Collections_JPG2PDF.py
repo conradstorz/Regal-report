@@ -18,15 +18,17 @@ __status__ = "Dev"
 
 import os
 import shutil
+import string
+import random
 from time import sleep
 
 import PIL.Image  # PIL is python 2.7 only (installed Pillow_as_PIL instead)
 from loguru import logger #TODO fix location of LOG files into a sub-folder
-from pytesseract import image_to_string as pyt_img2str
-import pytesseract
+from pytesseract import *
 
+pyt_img2str = pytesseract.image_to_string
 pytesseract.tesseract_cmd = (
-    r"C:/Program Files/Tesseract-OCR/tesseract.exe"
+    r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 )  # Windows put files in a location off-path so this is a workaround
 
 import tkinter as tk
@@ -150,32 +152,48 @@ def gather_all_JPEG_filenames_and_process():
 
 
 @logger.catch
+def find_match(txt):
+    match = "INDETERMINATE"
+    for k in known_locations.keys():
+        if k in txt:
+            match = known_locations[k]
+    return match
+
+
+@logger.catch
+def rotate_and_OCR(image):
+    logger.info("Rotating image...")
+    img = image.transpose(PIL.Image.ROTATE_270)
+    logger.info("Applying Optical Character Recognition...")
+    try:
+        txt = pyt_img2str(img)
+    except pytesseract.pytesseract.TesseractNotFoundError as e:
+        logger.error(str(e))
+        return (image, 'notfound')
+    logger.debug("TEXT FOUND:\n" + txt)
+    return (img, txt)
+
+
+@logger.catch
+def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+
+    return ''.join(random.choice(chars) for _ in range(size))
+
+@logger.catch
 def determine_output_filename(image, datestr):
     """ Using Optical Character Recognition try to identify from the picture
     what known location this picture represents and build the output filename.
     return rotated image and filename tuple.
     """
-
-    @logger.catch
-    def find_match(txt):
-        match = "INDETERMINATE"
-        for k in known_locations.keys():
-            if k in txt:
-                match = known_locations[k]
-        return match
-
-    @logger.catch
-    def rotate_and_OCR(image):
-        logger.info("Rotating image...")
-        img = image.transpose(PIL.Image.ROTATE_270)
-        logger.info("Applying Optical Character Recognition...")
-        txt = pyt_img2str(img)
-        logger.debug("TEXT FOUND:\n" + txt)
-        return (img, txt)
-
     dest_folder = ""
     newfilename = ""
     rotations = 4
+    logger.info('Verifing output folder...')
+    if not os.path.exists(output_folder):  # check and create output folder
+        os.makedirs(output_folder)  # TODO trap IOerrors
+    dest_folder = output_folder + "/" + "Regal_Collections_" + datestr
+    if not os.path.exists(dest_folder):  # check and create date folder
+        os.makedirs(dest_folder)  # TODO trap IOerrors    
     logger.info("Starting OCR image processing...")
     while rotations:
         rotations -= 1
@@ -187,15 +205,13 @@ def determine_output_filename(image, datestr):
             logger.info("No Match!")
     if location_match != "INDETERMINATE":
         logger.info("Data extracted: " + location_match)
-        if not os.path.exists(output_folder):  # check and create output folder
-            os.makedirs(output_folder)  # TODO trap IOerrors
-        dest_folder = output_folder + "/" + "Regal_Collections_" + datestr
-        if not os.path.exists(dest_folder):  # check and create date folder
-            os.makedirs(dest_folder)  # TODO trap IOerrors
         newfilename = "".join([dest_folder, "/", datestr, "_", location_match, ".pdf"])
         # TODO check if name already exists and do not overwrite
     else:
         logger.error("Location name could not be identified!")
+        logger.error('Generating random filename...')
+        id1 = id_generator()
+        newfilename = f'{datestr}_{id1}'
     return (img, newfilename, dest_folder)
 
 
