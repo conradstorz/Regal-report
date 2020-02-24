@@ -8,10 +8,10 @@
 """
 
 __author__ = "Conrad Storz"
-__copyright__ = "Copyright 2019"
+__copyright__ = "Copyright 2019-2020"
 __credits__ = ["Conrad Storz"]
 __license__ = "GPL"
-__version__ = "1.0.0.0"
+__version__ = "1.0.0.1"
 __maintainer__ = "Conrad Storz"
 __email__ = "conradstorz@gmail.com"
 __status__ = "Dev"
@@ -27,6 +27,8 @@ from loguru import logger #TODO fix location of LOG files into a sub-folder
 from pytesseract import *
 
 pyt_img2str = pytesseract.image_to_string
+# the line below has windows style file descriptor slashes that python decodes as unicode
+# but the module pytesseract requires these slashes to find the file
 pytesseract.tesseract_cmd = (
     r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 )  # Windows put files in a location off-path so this is a workaround
