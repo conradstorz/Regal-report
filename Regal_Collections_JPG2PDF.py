@@ -144,6 +144,7 @@ def gather_all_JPEG_filenames_and_process():
             logger.debug("New filename: " + filename)
             if save_as_pdf(img, filename):
                 logger.info("Completed: " + filename)
+                # TODO the next line choked on a filename with spaces in the name
                 move_file("".join([input_folder, fname]), "".join([outdir, "/", fname]))
             else:
                 logger.info("Failed to save: " + filename)
@@ -190,6 +191,7 @@ def determine_output_filename(image, datestr):
     dest_folder = ""
     newfilename = ""
     rotations = 4
+    location_match = "INDETERMINATE"
     logger.info('Verifing output folder...')
     if not os.path.exists(output_folder):  # check and create output folder
         os.makedirs(output_folder)  # TODO trap IOerrors
@@ -207,13 +209,13 @@ def determine_output_filename(image, datestr):
             logger.info("No Match!")
     if location_match != "INDETERMINATE":
         logger.info("Data extracted: " + location_match)
-        newfilename = "".join([dest_folder, "/", datestr, "_", location_match, ".pdf"])
-        # TODO check if name already exists and do not overwrite
     else:
         logger.error("Location name could not be identified!")
         logger.error('Generating random filename...')
         id1 = id_generator()
-        newfilename = f'{datestr}_{id1}'
+        location_match = f'{datestr}_{id1}'
+    newfilename = "".join([dest_folder, "/", datestr, "_", location_match, ".pdf"])
+    # TODO check if name already exists and do not overwrite
     return (img, newfilename, dest_folder)
 
 
