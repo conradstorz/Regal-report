@@ -30,7 +30,7 @@ pyt_img2str = pytesseract.image_to_string
 # the line below has windows style file descriptor slashes that python decodes as unicode
 # but the module pytesseract requires these slashes to find the file
 pytesseract.tesseract_cmd = (
-    r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    r"d:/Users/Conrad/Documents/Python/Regal-report/venv/Scripts/"
 )  # Windows put files in a location off-path so this is a workaround
 
 import tkinter as tk
@@ -50,8 +50,8 @@ known_locations = {
 }
 output_reduction_factor = 3
 #input_folder = "./Regal_photos/"
-input_folder = "G:/Documents/"
-output_folder = "G:/Documents"
+input_folder = "D:/users/Conrad/Documents/Regal_photos/"
+output_folder = "D:/users/Conrad/Documents/Regal_Collections_2021"
 inputfile_extension = ".jpg"
 # sample output directory
 # "G:/Documents/Regal_Collections_20190918"
@@ -170,8 +170,14 @@ def rotate_and_OCR(image):
     logger.info("Applying Optical Character Recognition...")
     try:
         txt = pyt_img2str(img)
-    except pytesseract.pytesseract.TesseractNotFoundError as e:
+    except PermissionError as e:
         logger.error(str(e))
+        return (image, 'notfound')
+    except pytesseract.TesseractNotFoundError as e:
+        logger.error(str(e))
+        return (image, 'notfound')        
+    except:
+        logger.error('Unprepared error occured.')
         return (image, 'notfound')
     logger.debug("TEXT FOUND:\n" + txt)
     return (img, txt)
